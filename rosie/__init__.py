@@ -1,6 +1,7 @@
 import os.path
 
 import numpy as np
+import pandas as pd
 from sklearn.externals import joblib
 
 from rosie.dataset import Dataset
@@ -52,7 +53,10 @@ class Rosie:
     def predict(self, model, irregularity):
         model.transform(self.dataset)
         y = model.predict(self.dataset)
+        probabilities = model.predict_proba(self.dataset)
         self.irregularities[irregularity] = y
+        self.irregularities[irregularity + '_probability'] = \
+            pd.Series(probabilities).fillna(.0)
         if y.dtype == np.int:
             self.irregularities.loc[y == 1, irregularity] = False
             self.irregularities.loc[y == -1, irregularity] = True
